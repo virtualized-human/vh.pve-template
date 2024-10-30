@@ -13,6 +13,9 @@ Role Variables
 
 | Variable | Description | Required | Default Value |
 | - | - | - | - |
+| `pve_api_user` | Set the API user with which the API commands are executed | true | `root@pam` |
+| `pve_api_token_id` | Set the API token to be used from the `pve_api_user`. This is the part behind the “!” | true | Not set |
+| `pve_api_token_secret` | Set the API token secret of the api token | true | Not set |
 | `pve_vm_id` | Set the VMID with which the template is to be created | true | Not set |
 
 Example Playbook
