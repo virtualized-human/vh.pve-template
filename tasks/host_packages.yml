@@ -5,6 +5,7 @@
       - libguestfs-tools
       - jq
       - python3-pip
+      - awk
     state: present
     update_cache: yes
 
