@@ -1,2 +1,4 @@
 ---
 # defaults file for .
+pve_api_user: "root@pam"
+pve_vm_agent: "enabled=1,freeze-fs-on-backup=1,fstrim_cloned_disks=1,type=virtio"

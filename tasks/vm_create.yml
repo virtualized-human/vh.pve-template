@@ -1,0 +1,21 @@
+---
+- name: TASKS | VM_CREATE | Destroy VM if exist
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_api_user }}"
+    api_token_id: "{{ pve_api_token_id }}"
+    api_token_secret: "{{ pve_api_token_secret }}"
+    api_host: "127.0.0.1"
+    node: "{{ local_pve_node.stdout }}"
+    vmid: "{{ pve_vm_id }}"
+    state: absent
+
+- name: TASKS | VM_CREATE | Create VM
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_api_user }}"
+    api_token_id: "{{ pve_api_token_id }}"
+    api_token_secret: "{{ pve_api_token_secret }}"
+    api_host: "127.0.0.1"
+    node: "{{ local_pve_node.stdout }}"
+    vmid: "{{ pve_vm_id }}"
+    state: present
+    agent: "{{ pve_vm_agent }}"
