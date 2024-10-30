@@ -1,12 +1,12 @@
-VH Proxmox VE VM Template Ansible Role
+Proxmox VE Cloud-Image VM Template Ansible Role
 =========
 
-A brief description of the role goes here.
+The goal of this role is to roll out the latest cloud images on Proxmox nodes in the form of a Proxmox VM template in a simple way and with a lot of customization. A lot has been variabilized. If something is missing, I will add it.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Not known. But you need ansible!
 
 Role Variables
 --------------
@@ -23,11 +23,19 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+    - name: Deploy Proxmox VE Cloud-Image Template
+      hosts: pve
+      become: true
+      tasks:
+        - name: Create Debian 12 Template
+          include_role:
+            name: vh.pve-template
+          vars:
+            pve_vm_id: "9000"
+            pve_vm_name: "Debian-12"
+            template_image_url: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
 
 License
 -------
 
-N/A
+GPL
