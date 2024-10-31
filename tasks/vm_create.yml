@@ -108,7 +108,6 @@
     cpu: "{{ pve_vm_cpu | default(omit) }}"
     cpulimit: "{{ pve_vm_cpulimit | default(omit) }}"
     hotplug: "{{ pve_vm_hotplug | default(omit) }}"
-    keyboard: "{{ pve_vm_keyboard | default(omit) }}"
     machine: "{{ pve_vm_machine | default(omit) }}"
     memory: "{{ pve_vm_memory | default(omit) }}"
     name: "{{ pve_vm_name | default(omit) }}"
