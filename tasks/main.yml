@@ -1,0 +1,9 @@
+---
+- name: TASKS | MAIN | Include host_packages tasks
+  include_tasks: host_packages.yml
+
+- name: TASKS | MAIN | Include host_vars tasks
+  include_tasks: host_vars.yml
+
+- name: TASKS | MAIN | Include vm_create tasks
+  include_tasks: vm_create.yml

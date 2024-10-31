@@ -1,0 +1,11 @@
+---
+- name: TASKS | HOST_VARS | Get PVE Node Name
+  shell: |
+    /usr/bin/pvesh get /cluster/status --output-format json | /usr/bin/jq -r '.[] | select(.local == 1) | .name'
+  args:
+    executable: /bin/bash
+  register: local_pve_node
+
+- name: TASKS | HOST_VARS | Debug PVE Node Name
+  debug:
+    msg: "{{ local_pve_node.stdout }}"
