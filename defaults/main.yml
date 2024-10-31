@@ -29,9 +29,4 @@ pve_vm_default_bridge: "vmbr0"
 pve_vm_default_netrate: "0"
 template_image_custom: "true"
 template_image_custom_install:
-  - 'qemu-guest-agent'
-template_image_custom_cmd:
-  - 'sed -i "s/.*PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config'
-  - 'sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication yes/g" /etc/ssh/sshd_config'
-  - 'sed -i "s/.*PubkeyAuthentication.*/PubkeyAuthentication yes/g" /etc/ssh/sshd_config'
-  - 'echo -n > /etc/machine-id'
+  - qemu-guest-agent
