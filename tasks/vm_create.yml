@@ -29,14 +29,18 @@
     src: "{{ item }}"
     dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
   loop: "{{ template_image_custom_cmd_script }}"
-  when: template_image_custom_cmd_script is defined
+  when:
+    - template_image_custom | bool
+    - template_image_custom_cmd_script is defined
 
 - name: TASKS | VM_CREATE | Image Customization Copy Firstboot Scripts
   template:
     src: "{{ item }}"
     dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
   loop: "{{ template_image_custom_firstboot_script }}"
-  when: template_image_custom_firstboot_script is defined
+  when:
+    - template_image_custom | bool 
+    - template_image_custom_firstboot_script is defined
 
 - name: TASKS | VM_CREATE | Image Download
   get_url:
