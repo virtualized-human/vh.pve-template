@@ -16,7 +16,8 @@
     api_token_secret: "{{ pve_api_token_secret }}"
     api_host: "127.0.0.1"
     node: "{{ local_pve_node.stdout }}"
-    vmid: "{{ pve_vm_id }}"
+    name: "{{ pve_vm_name | default(omit) }}"
+    vmid: "{{ pve_vm_id | default(omit) }}"
     state: present
 
 - name: TASKS | VM_CREATE | Create temporary directory
@@ -93,7 +94,8 @@
     update: true
     update_unsafe: true
     node: "{{ local_pve_node.stdout }}"
-    vmid: "{{ pve_vm_id }}"
+    name: "{{ pve_vm_name | default(omit) }}"
+    vmid: "{{ pve_vm_id | default(omit) }}"
     state: present
     agent: "{{ pve_vm_agent }}"
     balloon: "{{ pve_vm_balloon }}"
