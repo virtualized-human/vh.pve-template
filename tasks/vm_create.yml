@@ -9,12 +9,55 @@
     vmid: "{{ pve_vm_id }}"
     state: absent
 
-- name: TASKS | VM_CREATE | Create VM
+- name: TASKS | VM_CREATE | VM Create Basis
   community.general.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
     api_host: "127.0.0.1"
+    node: "{{ local_pve_node.stdout }}"
+    vmid: "{{ pve_vm_id }}"
+    state: present
+
+- name: TASKS | VM_CREATE | Create temporary directory
+  tempfile:
+    state: directory
+  register: local_temp_dir
+
+- name: TASKS | VM_CREATE | Image Download
+  get_url:
+    url: "{{ pve_template_image_url }}"
+    dest: "{{ local_temp_dir.path }}/image.qcow2"
+
+- name: TASKS | VM_CREATE | Image Apply Customizations
+  ansible.builtin.shell: |
+    virt-customize \
+      -a "{{ local_temp_dir.path }}/image.qcow2" \
+      --update \
+      --run-command 'echo -n > /etc/machine-id'
+  args:
+    executable: /bin/bash
+
+- name: TASKS | VM_CREATE | VM Import Disk Image
+  ansible.builtin.shell: |
+    qm disk import {{ pve_vm_id }} {{ local_temp_dir.path }}/image.qcow2 {{ pve_vm_default_storage }} | grep -o 'vm-{{ pve_vm_id }}-disk-[0-9]'
+  args:
+    executable: /bin/bash
+  register: report_import_disk
+
+- name: TASKS | VM_CREATE | Delete temporary directory
+  file:
+    path: "{{ local_temp_dir.path }}"
+    state: absent
+
+- name: TASKS | VM_CREATE | VM Apply Configuration
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_api_user }}"
+    api_token_id: "{{ pve_api_token_id }}"
+    api_token_secret: "{{ pve_api_token_secret }}"
+    api_host: "127.0.0.1"
+    update: true
+    update_unsafe: true
     node: "{{ local_pve_node.stdout }}"
     vmid: "{{ pve_vm_id }}"
     state: present
@@ -32,6 +75,13 @@
     machine: "{{ pve_vm_machine }}"
     memory: "{{ pve_vm_memory }}"
     name: "{{ pve_vm_name }}"
+    net:
+      net0: "{{ pve_vm_net_net0 | default(omit) }}"
+      net1: "{{ pve_vm_net_net1 | default(omit) }}"
+      net2: "{{ pve_vm_net_net2 | default(omit) }}"
+      net3: "{{ pve_vm_net_net3 | default(omit) }}"
+      net4: "{{ pve_vm_net_net4 | default(omit) }}"
+      net5: "{{ pve_vm_net_net5 | default(omit) }}"
     numa_enabled: "{{ pve_vm_numa_enabled }}"
     onboot: "{{ pve_vm_onboot }}"
     ostype: "{{ pve_vm_ostype }}"
@@ -52,3 +102,13 @@
       virtio3: "{{ pve_vm_virtio_virtio3 | default(omit) }}"
       virtio4: "{{ pve_vm_virtio_virtio4 | default(omit) }}"
       virtio5: "{{ pve_vm_virtio_virtio5 | default(omit) }}"
+
+- name: TASKS | VM_CREATE | VM Convert into Template
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_api_user }}"
+    api_token_id: "{{ pve_api_token_id }}"
+    api_token_secret: "{{ pve_api_token_secret }}"
+    api_host: "127.0.0.1"
+    node: "{{ local_pve_node.stdout }}"
+    vmid: "{{ pve_vm_id }}"
+    state: template
