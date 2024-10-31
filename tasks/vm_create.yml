@@ -24,6 +24,22 @@
     state: directory
   register: local_temp_dir
 
+- name: TASKS | VM_CREATE | Image Customization Copy CMD Scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
+    remote_src: false
+  loop: "{{ template_image_custom_cmd_script }}"
+  when: template_image_custom_cmd_script is defined
+
+- name: TASKS | VM_CREATE | Image Customization Copy Firstboot Scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
+    remote_src: false
+  loop: "{{ template_image_custom_firstboot_script }}"
+  when: template_image_custom_firstboot_script is defined
+
 - name: TASKS | VM_CREATE | Image Download
   get_url:
     url: "{{ template_image_url }}"
@@ -34,11 +50,20 @@
     virt-customize \
       -a "{{ local_temp_dir.path }}/image.qcow2" \
       --update \
-    {% for pkg in template_image_custom_install %}
+    {% for pkg in template_image_custom_install | default([]) %}
       --install '{{ pkg }}' \
     {% endfor %}
-    {% for cmd in template_image_custom_cmd %}
+    {% for cmd in template_image_custom_cmd | default([]) %}
       --run-command '{{ cmd }}' \
+    {% endfor %}
+    {% for script in template_image_custom_cmd_script | default([]) %}
+      --run '{{ local_temp_dir.path }}/{{ script | basename }}' \
+    {% endfor %}
+    {% for cmd in template_image_custom_firstboot | default([]) %}
+      --firstboot-command '{{ cmd }}' \
+    {% endfor %}
+    {% for script in template_image_custom_firstboot_script | default([]) %}
+      --firstboot '{{ local_temp_dir.path }}/{{ script | basename }}' \
     {% endfor %}
   args:
     executable: /bin/bash
