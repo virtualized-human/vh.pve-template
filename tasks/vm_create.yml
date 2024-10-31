@@ -25,18 +25,16 @@
   register: local_temp_dir
 
 - name: TASKS | VM_CREATE | Image Customization Copy CMD Scripts
-  copy:
+  template:
     src: "{{ item }}"
     dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
-    remote_src: false
   loop: "{{ template_image_custom_cmd_script }}"
   when: template_image_custom_cmd_script is defined
 
 - name: TASKS | VM_CREATE | Image Customization Copy Firstboot Scripts
-  copy:
+  template:
     src: "{{ item }}"
     dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
-    remote_src: false
   loop: "{{ template_image_custom_firstboot_script }}"
   when: template_image_custom_firstboot_script is defined
 
