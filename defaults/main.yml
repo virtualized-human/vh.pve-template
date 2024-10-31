@@ -25,7 +25,7 @@ pve_vm_serial: '{"serial0": "socket"}'
 pve_vm_vga: "std"
 pve_vm_virtio_virtio0: "{{ pve_vm_default_storage }}:{{ report_import_disk.stdout }},discard=on,iothread=1"
 pve_vm_default_storage: "local"
-pve_vm_default_format: "qcow2"
+pve_vm_default_storage_format: "qcow2"
 pve_vm_default_bridge: "vmbr0"
 pve_vm_default_netrate: "0"
 template_image_custom: "true"
