@@ -138,6 +138,7 @@
       virtio3: "{{ pve_vm_virtio_virtio3 | default(omit) }}"
       virtio4: "{{ pve_vm_virtio_virtio4 | default(omit) }}"
       virtio5: "{{ pve_vm_virtio_virtio5 | default(omit) }}"
+    keyboard: "{{ pve_vm_keyboard }}"
 
 - name: TASKS | VM_CREATE | VM Convert into Template
   community.general.proxmox_kvm:
