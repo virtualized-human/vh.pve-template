@@ -53,8 +53,8 @@
 
 - name: TASKS | VM_CREATE | Extract image if compressed
   when:
-  - template_image_url | regex_search('\.(gz|zip)$')
-  - template_image_custom | bool
+    - template_image_url | regex_search('\.(gz|zip)$')
+    - template_image_custom | bool
   block:
     - name: TASKS | VM_CREATE | Decompress gz file
       command: "gunzip -c {{ local_temp_dir.path }}/image.dl > {{ local_temp_dir.path }}/image.qcow2"
