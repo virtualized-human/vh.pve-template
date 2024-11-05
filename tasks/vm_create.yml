@@ -26,6 +26,10 @@
     state: directory
   register: local_temp_dir
 
+- name: TASKS | HOST_VARS | Debug temporary directory path
+  debug:
+    msg: "{{ local_temp_dir.path }}"
+
 - name: TASKS | VM_CREATE | Image Customization Copy CMD Scripts
   template:
     src: "{{ item }}"
@@ -52,6 +56,8 @@
 - name: TASKS | VM_CREATE | Decompress Download if Archive .gz
   shell: |
     zcat "{{ local_temp_dir.path }}/image.dl" > "{{ local_temp_dir.path }}/image.img"
+  args:
+    executable: /bin/bash
   register: internal_decompress_result
   when:
     - template_image_url.endswith('.gz')
