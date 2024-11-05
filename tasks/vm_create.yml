@@ -57,7 +57,8 @@
     dest: "{{ local_temp_dir.path }}/image.qcow2"
   register: internal_decompress_result
   when:
-    - ".gz" in template_image_url or ".zip" in template_image_url
+    - ".gz" in template_image_url
+    - ".zip" in template_image_url
     - template_image_custom | bool
 
 - name: TASKS | VM_CREATE | Rename image if not an archive
