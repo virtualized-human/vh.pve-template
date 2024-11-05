@@ -47,7 +47,26 @@
 - name: TASKS | VM_CREATE | Image Download
   get_url:
     url: "{{ template_image_url }}"
-    dest: "{{ local_temp_dir.path }}/image.qcow2"
+    dest: "{{ local_temp_dir.path }}/image.dl"
+  when:
+    - template_image_custom | bool 
+
+- name: TASKS | VM_CREATE | Extract image if compressed
+  when:
+  - template_image_url | regex_search('\.(gz|zip)$')
+  - template_image_custom | bool
+  block:
+    - name: TASKS | VM_CREATE | Decompress gz file
+      command: "gunzip -c {{ local_temp_dir.path }}/image.dl > {{ local_temp_dir.path }}/image.qcow2"
+      when: template_image_url.endswith('.gz')
+
+    - name: TASKS | VM_CREATE | Unzip file
+      command: "unzip -p {{ local_temp_dir.path }}/image.dl > {{ local_temp_dir.path }}/image.qcow2"
+      when: template_image_url.endswith('.zip')
+
+- name: TASKS | VM_CREATE | Move uncompressed image if no extraction needed
+  command: "mv {{ local_temp_dir.path }}/image.archive {{ local_temp_dir.path }}/image.qcow2"
+  when: template_image_url | regex_search('\.(gz|zip)$') == false
 
 - name: TASKS | VM_CREATE | Image Apply Customizations
   ansible.builtin.shell: |
