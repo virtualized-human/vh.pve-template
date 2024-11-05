@@ -48,8 +48,6 @@
   get_url:
     url: "{{ template_image_url }}"
     dest: "{{ local_temp_dir.path }}/image.dl"
-  when:
-    - template_image_custom | bool 
 
 - name: TASKS | VM_CREATE | Decompress Download if Archive
   ansible.builtin.unarchive:
@@ -57,9 +55,7 @@
     dest: "{{ local_temp_dir.path }}/image.qcow2"
   register: internal_decompress_result
   when:
-    - ".gz" in template_image_url
-    - ".zip" in template_image_url
-    - template_image_custom | bool
+    - template_image_url.endswith('.gz') or template_image_url.endswith('.zip')
 
 - name: TASKS | VM_CREATE | Rename image if not an archive
   ansible.builtin.copy:
@@ -68,7 +64,6 @@
     remote_src: yes
   when:
     - not internal_decompress_result.changed
-    - template_image_custom | bool
 
 - name: TASKS | VM_CREATE | Image Apply Customizations
   ansible.builtin.shell: |
