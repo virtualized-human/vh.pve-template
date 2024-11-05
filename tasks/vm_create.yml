@@ -49,18 +49,17 @@
     url: "{{ template_image_url }}"
     dest: "{{ local_temp_dir.path }}/image.dl"
 
-- name: TASKS | VM_CREATE | Decompress Download if Archive
-  ansible.builtin.unarchive:
-    src: "{{ local_temp_dir.path }}/image.dl"
-    dest: "{{ local_temp_dir.path }}/image.qcow2"
+- name: TASKS | VM_CREATE | Decompress Download if Archive .gz
+  shell: |
+    zcat "{{ local_temp_dir.path }}/image.dl" > "{{ local_temp_dir.path }}/image.img"
   register: internal_decompress_result
   when:
-    - template_image_url.endswith('.gz') or template_image_url.endswith('.zip')
+    - template_image_url.endswith('.gz')
 
 - name: TASKS | VM_CREATE | Rename image if not an archive
   ansible.builtin.copy:
     src: "{{ local_temp_dir.path }}/image.dl"
-    dest: "{{ local_temp_dir.path }}/image.qcow2"
+    dest: "{{ local_temp_dir.path }}/image.img"
     remote_src: yes
   when:
     - not internal_decompress_result.changed
@@ -68,7 +67,7 @@
 - name: TASKS | VM_CREATE | Image Apply Customizations
   ansible.builtin.shell: |
     virt-customize \
-      -a "{{ local_temp_dir.path }}/image.qcow2" \
+      -a "{{ local_temp_dir.path }}/image.img" \
       --update \
     {% for pkg in template_image_custom_install | default([]) %}
       --install '{{ pkg }}' \
@@ -92,7 +91,7 @@
 
 - name: TASKS | VM_CREATE | VM Import Disk Image
   ansible.builtin.shell: |
-    qm disk import {{ pve_vm_id }} {{ local_temp_dir.path }}/image.qcow2 {{ pve_vm_default_storage }} --format {{ pve_vm_default_storage_format }} | awk -F"'" '/Successfully imported disk as/ {split($2, a, ":"); print a[3]}'
+    qm disk import {{ pve_vm_id }} {{ local_temp_dir.path }}/image.img {{ pve_vm_default_storage }} --format {{ pve_vm_default_storage_format }} | awk -F"'" '/Successfully imported disk as/ {split($2, a, ":"); print a[3]}'
   args:
     executable: /bin/bash
   register: report_import_disk
