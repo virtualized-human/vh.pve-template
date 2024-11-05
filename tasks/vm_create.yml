@@ -7,6 +7,7 @@
     api_host: "127.0.0.1"
     node: "{{ local_pve_node.stdout }}"
     name: "{{ pve_vm_name | default(omit) }}"
+    vmid: "{{ pve_vm_id | default(omit) }}"
     state: absent
 
 - name: TASKS | VM_CREATE | VM Create Basis
