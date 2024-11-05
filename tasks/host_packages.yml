@@ -6,9 +6,6 @@
       - jq
       - python3-pip
       - gawk
-      - zipinfo
-      - gtar
-      - unzip
       - gzip
     state: present
     update_cache: yes
