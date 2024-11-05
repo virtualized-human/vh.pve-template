@@ -26,7 +26,7 @@
     state: directory
   register: local_temp_dir
 
-- name: TASKS | HOST_VARS | Debug temporary directory path
+- name: TASKS | VM_CREATE | Debug temporary directory path
   debug:
     msg: "{{ local_temp_dir.path }}"
 
