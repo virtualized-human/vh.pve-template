@@ -102,6 +102,10 @@
     executable: /bin/bash
   register: report_import_disk
 
+- name: TASKS | VM_CREATE | DEBUG - VM Import Disk Image
+  debug:
+    msg: "{{ report_import_disk.stdout }}"
+
 - name: TASKS | VM_CREATE | Delete temporary directory
   file:
     path: "{{ local_temp_dir.path }}"
