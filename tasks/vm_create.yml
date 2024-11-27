@@ -97,7 +97,7 @@
 
 - name: TASKS | VM_CREATE | VM Import Disk Image
   ansible.builtin.shell: |
-    qm disk import {{ pve_vm_id }} {{ local_temp_dir.path }}/image.img {{ pve_vm_default_storage }} --format {{ pve_vm_default_storage_format }} | awk -F"'" '/Successfully imported disk as/ {split($2, a, ":"); print a[3]}'
+    qm disk import {{ pve_vm_id }} {{ local_temp_dir.path }}/image.img {{ pve_vm_default_storage }} --format {{ pve_vm_default_storage_format }} | awk -F"'" '/imported disk/ {split($2, a, ":"); print a[2]}'
   args:
     executable: /bin/bash
   register: report_import_disk
