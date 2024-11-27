@@ -106,11 +106,6 @@
   debug:
     msg: "{{ report_import_disk.stdout }}"
 
-- name: TASKS | VM_CREATE | Delete temporary directory
-  file:
-    path: "{{ local_temp_dir.path }}"
-    state: absent
-
 - name: TASKS | VM_CREATE | VM Apply Configuration
   community.general.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
@@ -175,3 +170,8 @@
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
     state: template
+
+- name: TASKS | VM_CREATE | Delete temporary directory
+  file:
+    path: "{{ local_temp_dir.path }}"
+    state: absent
