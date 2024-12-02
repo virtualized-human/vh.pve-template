@@ -5,7 +5,6 @@ pve_vm_agent: "enabled=1,freeze-fs-on-backup=1,fstrim_cloned_disks=1,type=virtio
 pve_vm_balloon: "0"
 pve_vm_bios: "seabios"
 pve_vm_boot: "order=sata1;virtio0"
-pve_vm_cipassword: ""
 pve_vm_ciuser: "root"
 pve_vm_cores: "2"
 pve_vm_cpu: "host"
