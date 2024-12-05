@@ -158,6 +158,13 @@
       virtio3: "{{ pve_vm_virtio_virtio3 | default(omit) }}"
       virtio4: "{{ pve_vm_virtio_virtio4 | default(omit) }}"
       virtio5: "{{ pve_vm_virtio_virtio5 | default(omit) }}"
+    ide:
+      ide0: "{{ pve_vm_ide_ide0 | default(omit) }}"
+      ide1: "{{ pve_vm_ide_ide1 | default(omit) }}"
+      ide2: "{{ pve_vm_ide_ide2 | default(omit) }}"
+      ide3: "{{ pve_vm_ide_ide3 | default(omit) }}"
+      ide4: "{{ pve_vm_ide_ide4 | default(omit) }}"
+      ide5: "{{ pve_vm_ide_ide5 | default(omit) }}"
     keyboard: "{{ pve_vm_keyboard }}"
 
 - name: TASKS | VM_CREATE | VM Convert into Template
