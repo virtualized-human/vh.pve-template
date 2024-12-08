@@ -5,7 +5,7 @@
       - libguestfs-tools
       - jq
       - python3-pip
-      - gawk
+      - grep
       - gzip
     state: present
     update_cache: yes
