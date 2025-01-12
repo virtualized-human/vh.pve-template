@@ -27,8 +27,4 @@ pve_vm_default_storage: "local"
 pve_vm_default_storage_format: "qcow2"
 pve_vm_default_bridge: "vmbr0"
 pve_vm_default_netrate: "0"
-template_image_custom: "true"
-template_image_custom_install:
-  - qemu-guest-agent
-template_image_custom_cmd:
-  - echo -n > /etc/machine-id
+template_image_custom: "false"
