@@ -41,7 +41,6 @@
   template:
     src: "{{ template_image_file }}"
     dest: "{{ local_temp_dir.path }}/image"
-  loop: "{{ template_image_custom_firstboot_script }}"
   when: 
     - template_image_file is defined
 
