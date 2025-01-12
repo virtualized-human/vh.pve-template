@@ -2,13 +2,11 @@
 # defaults file for .
 pve_api_user: "root@pam"
 pve_vm_agent: "enabled=1,freeze-fs-on-backup=1,fstrim_cloned_disks=1,type=virtio"
-pve_vm_balloon: "0"
 pve_vm_bios: "seabios"
 pve_vm_boot: "order=ide2;virtio0"
 pve_vm_ciuser: "root"
 pve_vm_cores: "2"
 pve_vm_cpu: "host"
-pve_vm_cpulimit: "{{ pve_vm_cores }}"
 pve_vm_hotplug: "network,disk,usb"
 pve_vm_machine: "q35,viommu=virtio"
 pve_vm_memory: "2048"
