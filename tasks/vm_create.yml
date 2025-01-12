@@ -116,6 +116,7 @@
     boot: "{{ pve_vm_boot | default(omit) }}"
     cipassword: "{{ pve_vm_cipassword | default(omit) }}"
     ciuser: "{{ pve_vm_ciuser | default(omit) }}"
+    sshkeys: "{{ pve_vm_sshkeys | default (omit) }}"
     cores: "{{ pve_vm_cores | default(omit) }}"
     cpu: "{{ pve_vm_cpu | default(omit) }}"
     cpulimit: "{{ pve_vm_cpulimit | default(omit) }}"
