@@ -107,8 +107,8 @@
     update: true
     update_unsafe: true
     node: "{{ local_pve_node.stdout | default(omit) }}"
-    name: "{{ pve_vm_name | default(omit) | default(omit) }}"
-    vmid: "{{ pve_vm_id | default(omit) | default(omit) }}"
+    name: "{{ pve_vm_name | default(omit) }}"
+    vmid: "{{ pve_vm_id | default(omit) }}"
     state: present
     agent: "{{ pve_vm_agent | default(omit) }}"
     balloon: "{{ pve_vm_balloon | default(omit) }}"

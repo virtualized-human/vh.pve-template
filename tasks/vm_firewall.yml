@@ -1,0 +1,17 @@
+---
+- name: TASKS | VM_FIREWALL | Set Firewall Options
+  ansible.builtin.shell: |
+    pvesh set /nodes/{{ local_pve_node.stdout }}/qemu/{{ pve_vm_id }}/firewall/options{% for key, value in pve_vm_firewall_options.items() %} --{{ key }} '{{ value }}'{% endfor %}
+  args:
+    executable: /bin/bash
+  when:
+    - pve_vm_firewall_options is defined
+
+- name: TASKS | VM_FIREWALL | Create Firewall IPSets
+  ansible.builtin.shell: |
+    pvesh create /nodes/{{ local_pve_node.stdout }}/qemu/{{ pve_vm_id }}/firewall/ipset{% for key, value in item.items() %} --{{ key }} '{{ value }}'{% endfor %}
+  args:
+    executable: /bin/bash
+  with_items: "{{ pve_vm_firewall_ipsets }}"
+  when:
+    - pve_vm_firewall_ipsets is defined

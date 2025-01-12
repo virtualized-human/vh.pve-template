@@ -7,3 +7,6 @@
 
 - name: TASKS | MAIN | Include vm_create tasks
   include_tasks: vm_create.yml
+
+- name: TASKS | MAIN | Include vm_firewall tasks
+  include_tasks: vm_firewall.yml

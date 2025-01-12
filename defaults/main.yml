@@ -26,3 +26,12 @@ pve_vm_default_storage_format: "qcow2"
 pve_vm_default_bridge: "vmbr0"
 pve_vm_default_netrate: "0"
 template_image_custom: "false"
+pve_vm_firewall_options:
+  enable: "1"
+  macfilter: "1"
+  ipfilter: "1"
+  policy_in: "REJECT"
+  policy_out: "ACCEPT"
+pve_vm_firewall_ipsets:
+  - name: "ipfilter-net0"
+    comment: "IP-Filter for IFACE net0"
