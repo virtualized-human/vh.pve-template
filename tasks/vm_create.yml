@@ -38,7 +38,7 @@
    - template_image_url is defined
 
 - name: TASKS | VM_CREATE | Get Image via Local File
-  template:
+  copy:
     src: "{{ template_image_file }}"
     dest: "{{ local_temp_dir.path }}/image"
   when: 
