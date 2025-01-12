@@ -1,7 +1,7 @@
 Proxmox VE Cloud-Image VM Template Ansible Role
 =========
 
-The goal of this role is to roll out the latest cloud images on Proxmox nodes in the form of a Proxmox VM template in a simple way and with a lot of customization. A lot has been variabilized. If something is missing, I will add it.
+The goal of this role is to roll out already existing / prebuild images on Proxmox nodes in the form of a Proxmox VM template in a simple way. Additionally you can automatically customize images.
 
 Requirements
 ------------
