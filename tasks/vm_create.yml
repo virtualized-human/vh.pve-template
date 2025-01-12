@@ -26,74 +26,67 @@
     state: directory
   register: local_temp_dir
 
-- name: TASKS | VM_CREATE | Debug temporary directory path
+- name: TASKS | VM_CREATE | Create temporary directory [DEBUG]
   debug:
     msg: "{{ local_temp_dir.path }}"
 
-- name: TASKS | VM_CREATE | Image Customization Copy CMD Scripts
-  template:
-    src: "{{ item }}"
-    dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
-  loop: "{{ template_image_custom_cmd_script }}"
-  when:
-    - template_image_custom | bool
-    - template_image_custom_cmd_script is defined
-
-- name: TASKS | VM_CREATE | Image Customization Copy Firstboot Scripts
-  template:
-    src: "{{ item }}"
-    dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
-  loop: "{{ template_image_custom_firstboot_script }}"
-  when:
-    - template_image_custom | bool 
-    - template_image_custom_firstboot_script is defined
-
-- name: TASKS | VM_CREATE | Image Download
+- name: TASKS | VM_CREATE | Get Image via URL
   get_url:
     url: "{{ template_image_url }}"
-    dest: "{{ local_temp_dir.path }}/image.dl"
-
-- name: TASKS | VM_CREATE | Decompress Download if Archive .gz
-  shell: |
-    zcat "{{ local_temp_dir.path }}/image.dl" > "{{ local_temp_dir.path }}/image.img"
-  args:
-    executable: /bin/bash
-  register: internal_decompress_result
+    dest: "{{ local_temp_dir.path }}/image"
   when:
-    - template_image_url.endswith('.gz')
+   - template_image_url is defined
 
-- name: TASKS | VM_CREATE | Rename image if not an archive
-  ansible.builtin.copy:
-    src: "{{ local_temp_dir.path }}/image.dl"
-    dest: "{{ local_temp_dir.path }}/image.img"
-    remote_src: yes
-  when:
-    - not internal_decompress_result.changed
+- name: TASKS | VM_CREATE | Get Image via Local File
+  template:
+    src: "{{ template_image_file }}"
+    dest: "{{ local_temp_dir.path }}/image"
+  loop: "{{ template_image_custom_firstboot_script }}"
+  when: 
+    - template_image_file is defined
 
-- name: TASKS | VM_CREATE | Image Apply Customizations
-  ansible.builtin.shell: |
-    virt-customize \
-      -a "{{ local_temp_dir.path }}/image.img" \
-      --update \
-    {% for pkg in template_image_custom_install | default([]) %}
-      --install '{{ pkg }}' \
-    {% endfor %}
-    {% for cmd in template_image_custom_cmd | default([]) %}
-      --run-command '{{ cmd }}' \
-    {% endfor %}
-    {% for script in template_image_custom_cmd_script | default([]) %}
-      --run '{{ local_temp_dir.path }}/{{ script | basename }}' \
-    {% endfor %}
-    {% for cmd in template_image_custom_firstboot | default([]) %}
-      --firstboot-command '{{ cmd }}' \
-    {% endfor %}
-    {% for script in template_image_custom_firstboot_script | default([]) %}
-      --firstboot '{{ local_temp_dir.path }}/{{ script | basename }}' \
-    {% endfor %}
-  args:
-    executable: /bin/bash
+- name: TASKS | VM_CREATE | Image Customization
   when:
     - template_image_custom | bool
+  block:
+    - name: TASKS | VM_CREATE | Image Customization | Copy CMD Scripts
+      template:
+        src: "{{ item }}"
+        dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
+      loop: "{{ template_image_custom_cmd_script }}"
+      when:
+        - template_image_custom_cmd_script is defined
+
+    - name: TASKS | VM_CREATE | Image Customization | Copy Firstboot Scripts
+      template:
+        src: "{{ item }}"
+        dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
+      loop: "{{ template_image_custom_firstboot_script }}"
+      when:
+        - template_image_custom_firstboot_script is defined
+
+    - name: TASKS | VM_CREATE | Image Apply Customizations
+      ansible.builtin.shell: |
+        virt-customize \
+          -a "{{ local_temp_dir.path }}/image.img" \
+          --update \
+        {% for pkg in template_image_custom_install | default([]) %}
+          --install '{{ pkg }}' \
+        {% endfor %}
+        {% for cmd in template_image_custom_cmd | default([]) %}
+          --run-command '{{ cmd }}' \
+        {% endfor %}
+        {% for script in template_image_custom_cmd_script | default([]) %}
+          --run '{{ local_temp_dir.path }}/{{ script | basename }}' \
+        {% endfor %}
+        {% for cmd in template_image_custom_firstboot | default([]) %}
+          --firstboot-command '{{ cmd }}' \
+        {% endfor %}
+        {% for script in template_image_custom_firstboot_script | default([]) %}
+          --firstboot '{{ local_temp_dir.path }}/{{ script | basename }}' \
+        {% endfor %}
+      args:
+        executable: /bin/bash
 
 - name: TASKS | VM_CREATE | VM Import Disk Image
   ansible.builtin.shell: |
@@ -102,7 +95,7 @@
     executable: /bin/bash
   register: report_import_disk
 
-- name: TASKS | VM_CREATE | DEBUG - VM Import Disk Image
+- name: TASKS | VM_CREATE | VM Import Disk Image [DEBUG]
   debug:
     msg: "{{ report_import_disk.stdout }}"
 
