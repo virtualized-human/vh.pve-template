@@ -67,7 +67,7 @@
     - name: TASKS | VM_CREATE | Image Apply Customizations
       ansible.builtin.shell: |
         virt-customize \
-          -a "{{ local_temp_dir.path }}/image.img" \
+          -a "{{ local_temp_dir.path }}/image" \
           --update \
         {% for pkg in template_image_custom_install | default([]) %}
           --install '{{ pkg }}' \
