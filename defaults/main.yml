@@ -30,7 +30,7 @@ pve_vm_firewall_options:
   enable: "1"
   macfilter: "1"
   ipfilter: "1"
-  policy_in: "REJECT"
+  policy_in: "DROP"
   policy_out: "ACCEPT"
 pve_vm_firewall_ipsets:
   - name: "ipfilter-net0"
