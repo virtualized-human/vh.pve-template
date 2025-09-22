@@ -9,7 +9,10 @@
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
     state: absent
-    timeout: 60
+  register: destroy_result
+  retries: 5
+  delay: 10
+  until: destroy_result is not failed
 
 - name: TASKS | VM_CREATE | VM Create Basis
   community.general.proxmox_kvm:
@@ -21,6 +24,10 @@
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
     state: present
+  register: create_vm_result
+  retries: 5
+  delay: 10
+  until: create_vm_result is not failed
 
 - name: TASKS | VM_CREATE | Create temporary directory
   tempfile:
@@ -31,12 +38,17 @@
   debug:
     msg: "{{ local_temp_dir.path }}"
 
-- name: TASKS | VM_CREATE | Get Image via URL
-  get_url:
+- name: TASKS | VM_CREATE | Get Image via URL (retry until success)
+  when: template_image_url is defined
+  ansible.builtin.get_url:
     url: "{{ template_image_url }}"
     dest: "{{ local_temp_dir.path }}/image"
-  when:
-   - template_image_url is defined
+    timeout: 30
+  register: fetch_image
+  until: fetch_image is succeeded
+  retries: 10
+  delay: 10
+
 
 - name: TASKS | VM_CREATE | Get Image via Local File
   copy:
@@ -98,6 +110,15 @@
 - name: TASKS | VM_CREATE | VM Import Disk Image [DEBUG]
   debug:
     msg: "{{ report_import_disk.stdout }}"
+
+- name: TASKS | VM_CREATE | Delete leftover cloudinit disk if exists
+  ansible.builtin.shell: |
+    if [ -f "/mnt/local-NVME/images/{{ pve_vm_id }}/vm-{{ pve_vm_id }}-cloudinit.qcow2" ]; then
+      rm -f "/mnt/local-NVME/images/{{ pve_vm_id }}/vm-{{ pve_vm_id }}-cloudinit.qcow2"
+    fi
+  args:
+    executable: /bin/bash
+  ignore_errors: true
 
 - name: TASKS | VM_CREATE | VM Apply Configuration
   community.general.proxmox_kvm:
