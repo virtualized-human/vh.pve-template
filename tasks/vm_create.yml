@@ -87,7 +87,9 @@
         {% for script in template_image_custom_cmd_script | default([]) %}
           --run '{{ local_temp_dir.path }}/{{ script | basename }}' \
         {% endfor %}
+        {% if template_image_update | default(false) | bool %}
           --update \
+        {% endif %}
         {% for pkg in template_image_custom_install | default([]) %}
           --install '{{ pkg }}' \
         {% endfor %}
