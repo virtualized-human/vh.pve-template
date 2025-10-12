@@ -184,6 +184,36 @@
       ide5: "{{ pve_vm_ide_ide5 | default(omit) }}"
     keyboard: "{{ pve_vm_keyboard }}"
 
+- name: TASKS | VM_CREATE | Apply Cloud-Init Configuration for FreeBSD
+  when: 
+    - pve_vm_cloud_init_runcmd is defined
+    - pve_vm_cloud_init_runcmd | length > 0
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_api_user }}"
+    api_token_id: "{{ pve_api_token_id }}"
+    api_token_secret: "{{ pve_api_token_secret }}"
+    api_host: "127.0.0.1"
+    node: "{{ local_pve_node.stdout }}"
+    name: "{{ pve_vm_name | default(omit) }}"
+    vmid: "{{ pve_vm_id | default(omit) }}"
+    state: present
+    cicustom: "user=cloud-init"
+  register: cloud_init_result
+
+- name: TASKS | VM_CREATE | Create Cloud-Init User Data
+  when: 
+    - pve_vm_cloud_init_runcmd is defined
+    - pve_vm_cloud_init_runcmd | length > 0
+  copy:
+    content: |
+      #cloud-config
+      runcmd:
+      {% for cmd in pve_vm_cloud_init_runcmd %}
+        - '{{ cmd }}'
+      {% endfor %}
+    dest: "/var/lib/vz/snippets/cloud-init-{{ pve_vm_id }}.yml"
+  delegate_to: "{{ inventory_hostname }}"
+
 - name: TASKS | VM_CREATE | VM Convert into Template
   community.general.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
