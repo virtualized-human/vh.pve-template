@@ -9,6 +9,10 @@
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
     state: absent
+  register: destroy_result
+  retries: 5
+  delay: 10
+  until: destroy_result is not failed
 
 - name: TASKS | VM_CREATE | VM Create Basis
   community.general.proxmox_kvm:
@@ -20,6 +24,10 @@
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
     state: present
+  register: create_vm_result
+  retries: 5
+  delay: 10
+  until: create_vm_result is not failed
 
 - name: TASKS | VM_CREATE | Create temporary directory
   tempfile:
@@ -30,12 +38,17 @@
   debug:
     msg: "{{ local_temp_dir.path }}"
 
-- name: TASKS | VM_CREATE | Get Image via URL
-  get_url:
+- name: TASKS | VM_CREATE | Get Image via URL (retry until success)
+  when: template_image_url is defined
+  ansible.builtin.get_url:
     url: "{{ template_image_url }}"
     dest: "{{ local_temp_dir.path }}/image"
-  when:
-   - template_image_url is defined
+    timeout: 30
+  register: fetch_image
+  until: fetch_image is succeeded
+  retries: 10
+  delay: 10
+
 
 - name: TASKS | VM_CREATE | Get Image via Local File
   copy:
@@ -68,15 +81,17 @@
       ansible.builtin.shell: |
         virt-customize \
           -a "{{ local_temp_dir.path }}/image" \
-          --update \
-        {% for pkg in template_image_custom_install | default([]) %}
-          --install '{{ pkg }}' \
-        {% endfor %}
         {% for cmd in template_image_custom_cmd | default([]) %}
           --run-command '{{ cmd }}' \
         {% endfor %}
         {% for script in template_image_custom_cmd_script | default([]) %}
           --run '{{ local_temp_dir.path }}/{{ script | basename }}' \
+        {% endfor %}
+        {% if template_image_update | default(false) | bool %}
+          --update \
+        {% endif %}
+        {% for pkg in template_image_custom_install | default([]) %}
+          --install '{{ pkg }}' \
         {% endfor %}
         {% for cmd in template_image_custom_firstboot | default([]) %}
           --firstboot-command '{{ cmd }}' \
@@ -97,6 +112,15 @@
 - name: TASKS | VM_CREATE | VM Import Disk Image [DEBUG]
   debug:
     msg: "{{ report_import_disk.stdout }}"
+
+- name: TASKS | VM_CREATE | Delete leftover cloudinit disk if exists
+  ansible.builtin.shell: |
+    if [ -f "/mnt/local-NVME/images/{{ pve_vm_id }}/vm-{{ pve_vm_id }}-cloudinit.qcow2" ]; then
+      rm -f "/mnt/local-NVME/images/{{ pve_vm_id }}/vm-{{ pve_vm_id }}-cloudinit.qcow2"
+    fi
+  args:
+    executable: /bin/bash
+  ignore_errors: true
 
 - name: TASKS | VM_CREATE | VM Apply Configuration
   community.general.proxmox_kvm:
@@ -159,6 +183,36 @@
       ide4: "{{ pve_vm_ide_ide4 | default(omit) }}"
       ide5: "{{ pve_vm_ide_ide5 | default(omit) }}"
     keyboard: "{{ pve_vm_keyboard }}"
+
+- name: TASKS | VM_CREATE | Apply Cloud-Init Configuration for FreeBSD
+  when: 
+    - pve_vm_cloud_init_runcmd is defined
+    - pve_vm_cloud_init_runcmd | length > 0
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_api_user }}"
+    api_token_id: "{{ pve_api_token_id }}"
+    api_token_secret: "{{ pve_api_token_secret }}"
+    api_host: "127.0.0.1"
+    node: "{{ local_pve_node.stdout }}"
+    name: "{{ pve_vm_name | default(omit) }}"
+    vmid: "{{ pve_vm_id | default(omit) }}"
+    state: present
+    cicustom: "user=cloud-init"
+  register: cloud_init_result
+
+- name: TASKS | VM_CREATE | Create Cloud-Init User Data
+  when: 
+    - pve_vm_cloud_init_runcmd is defined
+    - pve_vm_cloud_init_runcmd | length > 0
+  copy:
+    content: |
+      #cloud-config
+      runcmd:
+      {% for cmd in pve_vm_cloud_init_runcmd %}
+        - '{{ cmd }}'
+      {% endfor %}
+    dest: "/var/lib/vz/snippets/cloud-init-{{ pve_vm_id }}.yml"
+  delegate_to: "{{ inventory_hostname }}"
 
 - name: TASKS | VM_CREATE | VM Convert into Template
   community.general.proxmox_kvm:

@@ -1,4 +1,3 @@
----
 - name: TASKS | HOST_PACKAGES | Install libguestfs-tools, jq
   apt:
     name:
@@ -9,6 +8,10 @@
       - gzip
     state: present
     update_cache: yes
+  register: install_packages
+  until: install_packages is succeeded
+  retries: 3
+  delay: 10
 
 - name: TASKS | HOST_PACKAGES | Install Proxmoxer
   ansible.builtin.pip:
@@ -16,3 +19,7 @@
       - proxmoxer
       - requests
     break_system_packages: true
+  register: install_proxmoxer
+  until: install_proxmoxer is succeeded
+  retries: 3
+  delay: 10

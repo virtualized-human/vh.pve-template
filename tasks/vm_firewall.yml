@@ -9,9 +9,18 @@
 
 - name: TASKS | VM_FIREWALL | Create Firewall IPSets
   ansible.builtin.shell: |
-    pvesh create /nodes/{{ local_pve_node.stdout }}/qemu/{{ pve_vm_id }}/firewall/ipset{% for key, value in item.items() %} --{{ key }} '{{ value }}'{% endfor %}
+    if ! pvesh get /nodes/{{ local_pve_node.stdout }}/qemu/{{ pve_vm_id }}/firewall/ipset/{{ item.name }} >/dev/null 2>&1; then
+      pvesh create /nodes/{{ local_pve_node.stdout }}/qemu/{{ pve_vm_id }}/firewall/ipset{% for key, value in item.items() %} --{{ key }} '{{ value }}'{% endfor %}
+    else
+      echo "IPSet {{ item.name }} already exists for VM {{ pve_vm_id }}"
+    fi
   args:
     executable: /bin/bash
   with_items: "{{ pve_vm_firewall_ipsets }}"
   when:
     - pve_vm_firewall_ipsets is defined
+  register: firewall_ipsets_result
+  retries: 3
+  delay: 5
+  until: firewall_ipsets_result is succeeded
+  ignore_errors: yes
