@@ -1,18 +1,12 @@
 ---
-- name: TASKS | HOST_PACKAGES | Install libguestfs-tools, jq
-  apt:
+- name: TASKS | HOST_PACKAGES | Install required packages
+  ansible.builtin.apt:
     name:
       - libguestfs-tools
       - jq
-      - python3-pip
       - grep
       - gzip
+      - python3-proxmoxer
+      - python3-requests
     state: present
-    update_cache: yes
-
-- name: TASKS | HOST_PACKAGES | Install Proxmoxer
-  ansible.builtin.pip:
-    name:
-      - proxmoxer
-      - requests
-    break_system_packages: true
+    update_cache: true
