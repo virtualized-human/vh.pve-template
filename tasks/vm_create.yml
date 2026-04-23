@@ -1,6 +1,6 @@
 ---
 - name: TASKS | VM_CREATE | Destroy VM if exist
-  community.general.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
@@ -12,7 +12,7 @@
     state: absent
 
 - name: TASKS | VM_CREATE | VM Create Basis
-  community.general.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
@@ -100,7 +100,7 @@
     msg: "{{ report_import_disk.stdout }}"
 
 - name: TASKS | VM_CREATE | VM Apply Configuration
-  community.general.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
@@ -162,7 +162,7 @@
     keyboard: "{{ pve_vm_keyboard }}"
 
 - name: TASKS | VM_CREATE | VM Convert into Template
-  community.general.proxmox_kvm:
+  community.proxmox.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
