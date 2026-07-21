@@ -6,7 +6,14 @@
       - jq
       - grep
       - gzip
+      - python3-pip
       - python3-proxmoxer
       - python3-requests
     state: present
     update_cache: true
+
+- name: TASKS | HOST_PACKAGES | Install/upgrade proxmoxer via pip (need >= 2.3)
+  ansible.builtin.pip:
+    name: proxmoxer>=2.3
+    state: present
+    extra_args: --break-system-packages

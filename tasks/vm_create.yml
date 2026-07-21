@@ -5,6 +5,7 @@
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
     api_host: "127.0.0.1"
+    validate_certs: false
     node: "{{ local_pve_node.stdout }}"
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
@@ -17,6 +18,7 @@
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
     api_host: "127.0.0.1"
+    validate_certs: false
     node: "{{ local_pve_node.stdout }}"
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
@@ -35,6 +37,7 @@
   get_url:
     url: "{{ template_image_url }}"
     dest: "{{ local_temp_dir.path }}/image"
+    timeout: 1800
   when:
     - template_image_url is defined
 
@@ -105,6 +108,7 @@
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
     api_host: "127.0.0.1"
+    validate_certs: false
     update: true
     update_unsafe: true
     node: "{{ local_pve_node.stdout | default(omit) }}"
@@ -167,6 +171,7 @@
     api_token_id: "{{ pve_api_token_id }}"
     api_token_secret: "{{ pve_api_token_secret }}"
     api_host: "127.0.0.1"
+    validate_certs: false
     node: "{{ local_pve_node.stdout }}"
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
