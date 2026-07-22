@@ -26,6 +26,8 @@ pve_vm_default_storage_format: "qcow2"
 pve_vm_default_bridge: "vmbr0"
 pve_vm_default_netrate: "0"
 template_image_custom: "false"
+template_image_resize: "" # either use +8G or final size like "20G"
+template_build_host: "localhost"
 pve_vm_firewall_options:
   enable: "1"
   macfilter: "1"

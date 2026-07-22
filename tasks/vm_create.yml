@@ -1,4 +1,15 @@
 ---
+- name: TASKS | VM_CREATE | Create temporary directory
+  tempfile:
+    state: directory
+  register: local_temp_dir
+
+- name: TASKS | VM_CREATE | Transfer image from build host
+  ansible.builtin.copy:
+    src: "{{ hostvars[template_build_host]._build_tmp.path }}/image"
+    dest: "{{ local_temp_dir.path }}/image"
+  notify: Clean up build environment
+
 - name: TASKS | VM_CREATE | Destroy VM if exist
   community.proxmox.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
@@ -23,73 +34,6 @@
     name: "{{ pve_vm_name | default(omit) }}"
     vmid: "{{ pve_vm_id | default(omit) }}"
     state: present
-
-- name: TASKS | VM_CREATE | Create temporary directory
-  tempfile:
-    state: directory
-  register: local_temp_dir
-
-- name: TASKS | VM_CREATE | Create temporary directory [DEBUG]
-  debug:
-    msg: "{{ local_temp_dir.path }}"
-
-- name: TASKS | VM_CREATE | Get Image via URL
-  get_url:
-    url: "{{ template_image_url }}"
-    dest: "{{ local_temp_dir.path }}/image"
-    timeout: 1800
-  when:
-    - template_image_url is defined
-
-- name: TASKS | VM_CREATE | Get Image via Local File
-  copy:
-    src: "{{ template_image_file }}"
-    dest: "{{ local_temp_dir.path }}/image"
-  when:
-    - template_image_file is defined
-
-- name: TASKS | VM_CREATE | Image Customization
-  when:
-    - template_image_custom | bool
-  block:
-    - name: TASKS | VM_CREATE | Image Customization | Copy CMD Scripts
-      template:
-        src: "{{ item }}"
-        dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
-      loop: "{{ template_image_custom_cmd_script }}"
-      when:
-        - template_image_custom_cmd_script is defined
-
-    - name: TASKS | VM_CREATE | Image Customization | Copy Firstboot Scripts
-      template:
-        src: "{{ item }}"
-        dest: "{{ local_temp_dir.path }}/{{ item | basename }}"
-      loop: "{{ template_image_custom_firstboot_script }}"
-      when:
-        - template_image_custom_firstboot_script is defined
-
-    - name: TASKS | VM_CREATE | Image Apply Customizations
-      ansible.builtin.shell: |
-        virt-customize \
-          -a "{{ local_temp_dir.path }}/image" \
-          --update \
-        {% for pkg in template_image_custom_install | default([]) %}
-          --install '{{ pkg }}' \
-        {% endfor %}
-        {% for cmd in template_image_custom_cmd | default([]) %}
-          --run-command '{{ cmd }}' \
-        {% endfor %}
-        {% for script in template_image_custom_cmd_script | default([]) %}
-          --run '{{ local_temp_dir.path }}/{{ script | basename }}' \
-        {% endfor %}
-        {% for cmd in template_image_custom_firstboot | default([]) %}
-          --firstboot-command '{{ cmd }}' \
-        {% endfor %}
-        {% for script in template_image_custom_firstboot_script | default([]) %}
-          --firstboot '{{ local_temp_dir.path }}/{{ script | basename }}' \
-        {% endfor %}
-      args:
-        executable: /bin/bash
 
 - name: TASKS | VM_CREATE | VM Import Disk Image
   ansible.builtin.shell: |

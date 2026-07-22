@@ -1,2 +1,7 @@
 ---
-# handlers file for .
+- name: Clean up build environment
+  ansible.builtin.file:
+    path: "{{ hostvars[template_build_host]._build_tmp.path }}"
+    state: absent
+  delegate_to: "{{ template_build_host }}"
+  run_once: true
